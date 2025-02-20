@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+          
+            html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            } 
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+
+        }
+
+        .container {
+            
+            
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 500px;
+            overflow: scroll;
+
+        
+
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input[readonly] {
+            background: #f1f1f1;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .success-message {
+            display: none;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .error-message {
+            display: none;
+            background: #ffebee;
+            color: #d32f2f;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #1b5e20;
+        }
+        table {
+    width: 30%;
+    margin: 20px auto; /* Center the table */
+    border-collapse: collapse;
+    text-align: left;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+th {
+    background: #4CAF50;
+    color: white;
+}
+
+tbody tr:nth-child(even) {
+    background: #f2f2f2;
+}
+
+@media (max-width: 768px) {
+    .table-container {
+        overflow-x: auto;
+    }
+    table {
+        display: block;
+        width: 100%;
+        white-space: nowrap;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Shorten Your URL</h2>
+        <form id="urlForm" action="/url" method="POST">
+            <!-- URL input -->
+            <input name="url" name="url" id="longUrl" placeholder="Enter your long URL..." required>
+            
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage">❌ Please enter a valid URL!</div>
+
+            <!-- Success Message (Only show if URL is generated) -->
+            <% if (locals.id) { %>
+                <div class="success-message" id="successMessage" style="display: block;">
+                    ✅ URL Shortened Successfully!
+                </div>
+                <input type="text" id="shortUrl" value="http://localhost:8000/<%= locals.id %>" readonly onclick="copyToClipboard()">
+            <% } %>
+
+            <button type="submit">Shorten URL</button>
+        </form>
+
+        <% if(locals.urls){ %>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>S. No</th>
+                            <th>ShortId</th>
+                            <th>Redirect</th>
+                            <th>Clicks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% urls.forEach((url, index) => { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td><%= url.shortId %></td>
+                                <td><%= url.redirectURL %></td>
+                                <td><%= url.visiteHistoty.length %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <%} %>
+         
+        
+    </div>
+
+    <script>
+        document.getElementById("urlForm").addEventListener("submit", function(event) {
+            let urlInput = document.getElementById("longUrl").value.trim();
+            let errorMessage = document.getElementById("errorMessage");
+
+            if (urlInput === "") {
+                event.preventDefault(); // Stop form submission
+                errorMessage.style.display = "block"; // Show error
+            } else {
+                errorMessage.style.display = "none"; // Hide error
+            }
+        });
+
+        // Function to copy the shortened URL to clipboard
+        function copyToClipboard() {
+            let shortUrlInput = document.getElementById("shortUrl");
+            shortUrlInput.select();
+            document.execCommand("copy");
+            alert("Shortened URL copied to clipboard!");
+        }
+
+        // Clear input fields on page refresh
+        window.onload = function() {
+            document.getElementById("longUrl").value = "";
+        };
+    </script>
+</body>
+</html>
